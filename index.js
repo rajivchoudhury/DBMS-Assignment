@@ -1,17 +1,30 @@
-var http = require('http');
-var fs = require('fs');
+const express = require('express');
+const exphbs = require('express-handlebars');
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
 
-function onRequest(request, response){
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    fs.readFile('./index.html', null, function(error, data){
-        if(error){
-            response.writeHead(404);
-            response.write('File not Found');
-        } else{
-            response.write(data);
-        }
-        response.end();
-    })
-}
+require('dotenv').config();
 
-http.createServer(onRequest).listen(8000);
+const app = express();
+const port = process.env.PORT || 5000;
+
+//parse Middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+
+//parse application/json
+app.use(bodyParser.json());
+
+//static files
+app.use(express.static('public'));
+
+// Templating engine
+app.engine('hbs', exphbs.engine( {extname: '.hbs'}));
+app.set('view engine', 'hbs');
+
+//Router
+app.get('', (req, res) => {
+    res.render('home');
+});
+
+
+app.listen(port, ()=> console.log(`Listening on port ${port}`));
